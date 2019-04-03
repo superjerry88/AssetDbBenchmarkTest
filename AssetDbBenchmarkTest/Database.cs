@@ -19,7 +19,7 @@ namespace AssetDbBenchmarkTest
     {
         public int Id { get; set; }
         public string AssetId { get; set; }
-        public virtual ICollection<Item> Items { get; set; } = new List<Item>();
+        public virtual List<Item> Items { get; set; } = new List<Item>();
     }
 
     public class Item
@@ -31,5 +31,25 @@ namespace AssetDbBenchmarkTest
         public bool IsValue { get; set; }
 
         public string GetData => IsValue ? Value.ToString() : Data;
+
+        public Item(string data, DateTime? dt = null)
+        {
+            var datetime = DateTime.Now;
+            if (dt != null) datetime = (DateTime)dt;
+            Data = data;
+            DateTime = datetime;
+            IsValue = false;
+        }
+
+        public Item(double data, DateTime? dt = null)
+        {
+            var datetime = DateTime.Now;
+            if (dt != null) datetime = (DateTime)dt;
+            Value = data;
+            DateTime = datetime;
+            IsValue = true;
+        }
+
+        public Item(){}
     }
 }

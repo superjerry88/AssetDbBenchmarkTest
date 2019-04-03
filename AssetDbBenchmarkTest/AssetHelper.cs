@@ -18,39 +18,24 @@ namespace AssetDbBenchmarkTest
             }
         }
 
-        public static void AddItemAsData (string asset, string data, DateTime? dt = null)
+        public static void AddItem(string asset, Item item)
         {
-            var datetime = DateTime.Now;
-            if(dt != null) datetime = (DateTime) dt; 
-
             CreateAssetIfNotExist(asset);
 
             var db = new Database();
             var dbAsset = db.Assets.First(a => a.AssetId.Equals(asset));
-            dbAsset.Items.Add(new Item
-            {
-                Data = data,
-                DateTime = datetime,
-                IsValue = false
-            });
+            dbAsset.Items.Add(item);
             db.SaveChanges();
         }
 
-        public static void AddItemAsValue(string asset, double data, DateTime? dt = null)
+        public static void AddItem(string asset, List<Item> items)
         {
-            var datetime = DateTime.Now;
-            if (dt != null) datetime = (DateTime)dt;
-
             CreateAssetIfNotExist(asset);
 
             var db = new Database();
+            db.Configuration.AutoDetectChangesEnabled = false; //Magic that speed up large transaction
             var dbAsset = db.Assets.First(a => a.AssetId.Equals(asset));
-            dbAsset.Items.Add(new Item
-            {
-                Value = data,
-                DateTime = datetime,
-                IsValue = true
-            });
+            dbAsset.Items.AddRange(items);
             db.SaveChanges();
         }
     }
