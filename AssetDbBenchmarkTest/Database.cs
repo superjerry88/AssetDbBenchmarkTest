@@ -25,7 +25,11 @@ namespace AssetDbBenchmarkTest
     public class Item
     {
         public int Id { get; set; }
-        public object Data { get; set; }
+        public string Data { get; set; }
+        public double Value { get; set; }
         public DateTime DateTime { get; set; }
+        public bool IsValue { get; set; }
+
+        public string GetData => IsValue ? Value.ToString() : Data;
     }
 }
