@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
+using System.Runtime.Remoting.Contexts;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +20,7 @@ namespace AssetDbBenchmarkTest
             }
         }
 
-        public static void AddItem(string asset, Item item)
+        public static void AddItemV1(string asset, Item item)
         {
             CreateAssetIfNotExist(asset);
 
@@ -28,15 +30,54 @@ namespace AssetDbBenchmarkTest
             db.SaveChanges();
         }
 
-        public static void AddItem(string asset, List<Item> items)
+        public static void AddItemV2(string asset, List<Item> items)
+        {
+            CreateAssetIfNotExist(asset);
+
+            var db = new Database();
+            var assetId = db.Assets.First(a => a.AssetId.Equals(asset)).Id;
+
+            foreach (var item in items)
+            {
+                db.Database.ExecuteSqlCommand(
+                    "Insert into Items Values(@Data, @Value, @DateTime, @IsValue, @Asset_Id)",
+                    new SqlParameter("Data", item.Data ?? "NULL"),
+                    new SqlParameter("Value", item.Value),
+                    new SqlParameter("DateTime", item.DateTime),
+                    new SqlParameter("IsValue", item.IsValue),
+                    new SqlParameter("Asset_Id", assetId)
+                );
+            }
+            db.SaveChanges();
+        }
+
+        public static void AddItemV3(string asset, List<Item> items)
         {
             CreateAssetIfNotExist(asset);
 
             var db = new Database();
             db.Configuration.AutoDetectChangesEnabled = false; //Magic that speed up large transaction
-            var dbAsset = db.Assets.First(a => a.AssetId.Equals(asset));
-            dbAsset.Items.AddRange(items);
+
+            db.Assets.First(a => a.AssetId.Equals(asset)).Items.AddRange(items);
+
             db.SaveChanges();
         }
+
+        public static void AddItemV4(string asset, List<Item> items)
+        {
+            CreateAssetIfNotExist(asset);
+
+            var db = new Database();
+            var assetId = db.Assets.First(a => a.AssetId.Equals(asset));
+
+            foreach (var item in items)
+            {
+                item.Asset = assetId;
+            }
+
+            db.BulkInsert(items);
+
+        }
+
     }
 }

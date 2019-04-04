@@ -29,13 +29,13 @@ namespace AssetDbBenchmarkTest
         public double Value { get; set; }
         public DateTime DateTime { get; set; }
         public bool IsValue { get; set; }
-
+        public virtual Asset Asset { get; set; }
         public string GetData => IsValue ? Value.ToString() : Data;
 
         public Item(string data, DateTime? dt = null)
         {
             var datetime = DateTime.Now;
-            if (dt != null) datetime = (DateTime)dt;
+            if (dt != null) datetime = (DateTime) dt;
             Data = data;
             DateTime = datetime;
             IsValue = false;
@@ -44,12 +44,14 @@ namespace AssetDbBenchmarkTest
         public Item(double data, DateTime? dt = null)
         {
             var datetime = DateTime.Now;
-            if (dt != null) datetime = (DateTime)dt;
+            if (dt != null) datetime = (DateTime) dt;
             Value = data;
             DateTime = datetime;
             IsValue = true;
         }
 
-        public Item(){}
+        public Item()
+        {
+        }
     }
 }
