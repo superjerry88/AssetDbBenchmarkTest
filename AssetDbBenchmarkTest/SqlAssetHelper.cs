@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AssetDbBenchmarkTest
 {
-    class AssetHelper
+    class SqlAssetHelper
     {
         public static void CreateAssetIfNotExist(string assetId)
         {

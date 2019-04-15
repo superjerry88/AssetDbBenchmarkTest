@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 
 namespace AssetDbBenchmarkTest
@@ -26,9 +27,12 @@ namespace AssetDbBenchmarkTest
     {
         public int Id { get; set; }
         public string Data { get; set; }
+        [Index("index", 2)]
         public double Value { get; set; }
+        [Index("index", 3)]
         public DateTime DateTime { get; set; }
         public bool IsValue { get; set; }
+        [Index("index", 1)]
         public virtual Asset Asset { get; set; }
         public string GetData => IsValue ? Value.ToString() : Data;
 

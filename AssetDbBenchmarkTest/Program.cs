@@ -11,15 +11,17 @@ namespace AssetDbBenchmarkTest
         const string FilePath = @"C:\Users\Jerry\Downloads\7-8 mar.csv";
         static void Main(string[] args)
         {
+           // var data = GetCsvData(FilePath, 999999999);
 
             //BenchmarkInsertV1(); TOO SLOW
-            BenchmarkInsertV2();
+           // BenchmarkInsertV2();
             //BenchmarkInsertV3(); TOO SLOW
             BenchmarkInsertV4();
             BenchmarkCount();
             BenchmarkCountWithCondition();
-            BenchmarkSelectWithCondition();
-
+           // BenchmarkSelectWithCondition();
+            //BenchmarkSelectWithCondition2();
+            BenchmarkMax();
             PrintInstruction("Done! [Enter] to end program");
             Console.ReadKey();
       
@@ -34,7 +36,7 @@ namespace AssetDbBenchmarkTest
             {
                 foreach (var singleItem in item.Value)
                 {
-                    AssetHelper.AddItemV1(item.Key, singleItem);
+                    SqlAssetHelper.AddItemV1(item.Key, singleItem);
                 }
                 Console.WriteLine($"Added {item.Value.Count} data to {item.Key}");
             }
@@ -55,7 +57,7 @@ namespace AssetDbBenchmarkTest
 
             foreach (var item in assets)
             {
-                AssetHelper.AddItemV2(item.Key, item.Value);
+                SqlAssetHelper.AddItemV2(item.Key, item.Value);
                 Console.WriteLine($"Added {item.Value.Count} data to {item.Key}");
             }
             PrintLine();
@@ -74,7 +76,7 @@ namespace AssetDbBenchmarkTest
 
             foreach (var item in assets)
             {
-                AssetHelper.AddItemV3(item.Key, item.Value);
+                SqlAssetHelper.AddItemV3(item.Key, item.Value);
                 Console.WriteLine($"Added {item.Value.Count} data to {item.Key}");
             }
             PrintLine();
@@ -88,13 +90,14 @@ namespace AssetDbBenchmarkTest
 
         private static void BenchmarkInsertV4()
         {
-            const int row = 20000;
+             int row = 9999999;
             var stopwatch = Stopwatch.StartNew();
             var assets = GetCsvData(FilePath, row);
-
+            row = assets.Values.First().Count;
+            Console.WriteLine(row);
             foreach (var item in assets)
             {
-                AssetHelper.AddItemV4(item.Key,item.Value);
+                SqlAssetHelper.AddItemV4(item.Key,item.Value);
                 Console.WriteLine($"Added {item.Value.Count} data to {item.Key}");
             }
             PrintLine();
@@ -145,8 +148,8 @@ namespace AssetDbBenchmarkTest
             var stopwatch = Stopwatch.StartNew();
             var db = new Database();
             var queryAsset = "\"Q1_Act ValueY\"";
-            var queryResult = db.Items.OrderByDescending(i => i.Asset.AssetId.Equals(queryAsset) && i.Value > 5).Take(row);
-            foreach (var item in queryResult)
+            var queryResult = db.Items.Where(i => i.Asset.AssetId.Equals(queryAsset) && i.Value > 5).Take(row);
+            foreach (var item in queryResult)//
             {
                 Console.WriteLine($"{queryAsset}: {item.GetData} at {item.DateTime:T}");
             }
@@ -155,6 +158,43 @@ namespace AssetDbBenchmarkTest
             PrintMsg($"[Task] Extract Data with condition");
             PrintMsg($"[Desc] Display the latest {row} Asset: {queryAsset} where its value is greater than 5");
             PrintMsg($"[Time] Total: {stopwatch.ElapsedMilliseconds}ms | Average: {(double)stopwatch.ElapsedMilliseconds/row}ms per data");
+            PrintInstruction("Hit Enter to continue next test");
+            PrintLine();
+            Console.ReadKey();
+        }
+
+        private static void BenchmarkSelectWithCondition2()
+        {
+            const int row = 10;
+            var stopwatch = Stopwatch.StartNew();
+            var db = new Database();
+            var queryAsset = "\"Q1_Act ValueY\"";
+            var queryResult = db.Items.OrderByDescending(p => p.DateTime).Where(i => i.Asset.AssetId.Equals(queryAsset) && i.Value > 5).Take(row);
+            foreach (var item in queryResult)//
+            {
+                Console.WriteLine($"{queryAsset}: {item.GetData} at {item.DateTime:T}");
+            }
+
+            PrintLine();
+            PrintMsg($"[Task] Extract Data with condition");
+            PrintMsg($"[Desc] Display the latest {row} Asset: {queryAsset} where its value is greater than 5");
+            PrintMsg($"[Time] Total: {stopwatch.ElapsedMilliseconds}ms | Average: {(double)stopwatch.ElapsedMilliseconds / row}ms per data");
+            PrintInstruction("Hit Enter to continue next test");
+            PrintLine();
+            Console.ReadKey();
+        }
+
+        private static void BenchmarkMax()
+        {
+            var stopwatch = Stopwatch.StartNew();
+            var db = new Database();
+            var queryAsset = "\"Q1_Act ValueY\"";
+            var queryResult = db.Items.Where(i => i.Asset.AssetId.Equals(queryAsset)).Max(i => i.Value);
+            Console.WriteLine($"Max value: {queryResult}");
+            PrintLine();
+            PrintMsg($"[Task] Find Highest Sensor Data");
+            PrintMsg($"[Desc] Display the Max value for Asset: {queryAsset} ");
+            PrintMsg($"[Time] Total: {stopwatch.ElapsedMilliseconds}ms | Average: {(double)stopwatch.ElapsedMilliseconds}ms per data");
             PrintInstruction("Hit Enter to continue next test");
             PrintLine();
             Console.ReadKey();
